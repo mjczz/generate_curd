@@ -28,11 +28,11 @@ function index($page = 0)
     $tpl_controller = str_replace('DIR_NAME', $dir_name, $tpl_controller);
     $tpl_controller = str_replace('MODEL_NAME', $TableName, $tpl_controller);
 
-    file_put_contents($TableName . '_model.php', $tpl_model);
+    file_put_contents('./generate_file/'.$TableName . '_model.php', $tpl_model);
     echo "生成model文件-------" . $TableName . '_model.php';
-    echo "<br>";
+    echo PHP_EOL;
 
-    file_put_contents($TableName . '.php', $tpl_controller);
+    file_put_contents('./generate_file/'.$TableName . '.php', $tpl_controller);
     echo "生成controller文件-------" . $TableName . '.php';
     exit;
 
