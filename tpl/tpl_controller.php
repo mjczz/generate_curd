@@ -34,7 +34,7 @@ class CONTROLLER_NAME extends ApiCommon
     public function getWhere($post)
     {
         $param = $post;
-        $param['per_page'] = !empty($post['per_page']) ? $post['per_page'] : 0; // 0或不传此参数，查询所有记录
+        $param['per_page'] = !empty($post['per_page']) ? $post['per_page'] : $this->pageNum;
         $param['page'] = !empty($post['page']) ? $post['page'] : 1;
 
         return $param;

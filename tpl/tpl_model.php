@@ -52,7 +52,7 @@ class MODEL_NAME_model extends CI_Model
     }
 
     // 查询列表
-    public function listData($param, $page = 0, $pagenum = 0)
+    public function listData($param, $page = 0, $pagenum = 10)
     {
         $wherestr = $this->getWhere($param);
 
@@ -62,10 +62,13 @@ class MODEL_NAME_model extends CI_Model
                    FROM {$this->table} AS t1
                    ";
 
-        if (!empty($pagenum)) {
-            $sqlstr .= $wherestr.$orderstr." LIMIT ".$pagenum." OFFSET ".$page;
-        } else {
+        // 满足要查询所有数据的需求
+        if (!empty($param['all_data']) && $param['all_data'] == 1) {
             $sqlstr .= $wherestr.$orderstr;
+        }
+        // 分页查询
+        else {
+            $sqlstr .= $wherestr.$orderstr." LIMIT ".$pagenum." OFFSET ".$page;
         }
 
         return $this->db->query($sqlstr)->result_array();
