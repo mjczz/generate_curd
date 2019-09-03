@@ -1,4 +1,4 @@
-# 生成CURD模板文件
+# 生成CURD
 
 - 配置dbconfig.php，pgsql数据库信息
 
@@ -9,7 +9,12 @@
 php czzsql
 ```
 
-- 执行命令,前提是先建表
+- 执行命令,生成对应表测试数据
 ```bash
-php czz
+php czzdata
+```
+
+- 执行命令,生成控制器、模型以及接口文档
+```bash
+php czzcurd
 ```
