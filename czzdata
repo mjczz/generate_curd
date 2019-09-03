@@ -1,0 +1,92 @@
+#!/usr/bin/env php
+
+<?php
+/**
+ * Created by czz.
+ * User: czz
+ * Date: 2019/9/3
+ * Time: 20:00
+ */
+require './config.php';
+require './dbconfig.php';
+
+// 生成测试数据
+function generate_data($config, $dbconfig)
+{
+    $table_name = $config['table_name'];
+    $res = tableDesc($table_name, $dbconfig);
+
+    $sqlstr = "INSERT INTO {$table_name}(";
+    foreach ($res as $v) {
+        if ($v['attname'] == 'id') {continue;}
+        $sqlstr .= "{$v['attname']},";
+    }
+    $sqlstr = trim($sqlstr, ',').') SELECT ';
+
+    $intField = array('integer','smallint','bigint','numeric','real');
+
+    foreach ($res as $v) {
+        if ($v['attname'] == 'id') {continue;}
+
+        $end = strpos($v['data_type'], '(');
+        if ($end) {
+            $v['data_type'] = substr($v['data_type'],0, $end);
+        }
+
+        // 数字类型字段
+        if (in_array($v['data_type'], $intField)) {
+            if (in_array($v['attname'], array("ctime", "mtime"))) {
+                $sqlstr .= time().",";
+            } else {
+                if ($v['data_type'] == 'smallint') {
+                    $sqlstr .= rand(1,3).',';
+                } else {
+                    $sqlstr .= "t.id*random(),";
+                }
+            }
+        }
+
+        // 字符串类型字段
+        else {
+            $sqlstr .= "t.id || '_{$v['attname']}',";
+        }
+    }
+
+    $sqlstr = trim($sqlstr, ',');
+    $sqlstr .= " FROM generate_series(1, 1000) AS t(id);";
+
+    excute_sql($sqlstr, $dbconfig);
+    echo '生成测试数据成功...............';
+}
+
+// 表结构和字段注释
+function tableDesc($table = '', $dbconfig) {
+
+    $sql = "SELECT A .attnum,
+	        (
+      		  SELECT description FROM pg_catalog.pg_description
+		      WHERE objoid = A .attrelid AND objsubid = A .attnum
+        	) AS description, A .attname, pg_catalog.format_type (A .atttypid, A .atttypmod) AS data_type
+            FROM pg_catalog.pg_attribute A
+            WHERE 1 = 1 AND A .attrelid = (SELECT oid FROM pg_class	WHERE relname = '{$table}')
+            AND A .attnum > 0 AND NOT A .attisdropped
+            ORDER BY A .attnum;";
+
+    return excute_sql($sql, $dbconfig);
+}
+
+// 执行sql
+function excute_sql($sql, $dbconfig)
+{
+    $conn_string = "host={$dbconfig['host']} port={$dbconfig['port']} dbname={$dbconfig['dbname']} user={$dbconfig['user']} password={$dbconfig['password']}";
+    $conn = pg_connect($conn_string) or die("Could not connect");
+
+    $result = pg_query($conn, $sql);
+    $rs = pg_fetch_all($result);
+
+    pg_close($conn);
+
+    return $rs;
+}
+
+generate_data($config, $dbconfig);
