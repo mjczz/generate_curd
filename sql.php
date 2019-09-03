@@ -3,11 +3,12 @@
 /**
  * @author czz
  */
+require './config.php';
 
-function index()
+function index($config)
 {
-    $table_name = 'nice_student';
-    $TABLE_DESC = '学员表';
+    $table_name = $config['table_name'];
+    $TABLE_DESC = $config['table_desc'];
 
     // 生成model文件
     $tpl_sql = file_get_contents('./tpl/tpl_sql.sql');
@@ -26,4 +27,4 @@ function index()
     exit;
 }
 
-index();
+index($config);

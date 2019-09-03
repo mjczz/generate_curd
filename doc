@@ -3,16 +3,16 @@
 /**
  * @author czz
  */
+require './config.php';
+require './dbconfig.php';
 
-
-
-function index()
+function index($config, $dbconfig)
 {
-    $table_name = 'nice_crm2_campus';
-    $dir_name = 'mcrm';
+    $table_name = $config['table_name'];
+    $dir_name = $config['dir_name'];
     $TableName = convertUnderline($table_name);
-    $DATABASE_FILED1 = printMd($table_name,1);
-    $DATABASE_FILED2 = printMd($table_name,2);
+    $DATABASE_FILED1 = printMd($table_name,1, $dbconfig);
+    $DATABASE_FILED2 = printMd($table_name,2, $dbconfig);
 
     // 生成查询接口文档
     $list_md = file_get_contents('./tpl/list.md');
@@ -68,16 +68,8 @@ function index()
 }
 
 
-function excute_sql($sql)
+function excute_sql($sql, $dbconfig)
 {
-    $dbconfig = [
-        'host' => '127.0.0.1',
-        'port' => '5432',
-        'dbname' => 'db1',
-        'user' => 'postgres',
-        'password' => 'password',
-    ];
-
     $conn_string = "host={$dbconfig['host']} port={$dbconfig['port']} dbname={$dbconfig['dbname']} user={$dbconfig['user']} password={$dbconfig['password']}";
     $conn = pg_connect($conn_string) or die("Could not connect");
 
@@ -90,7 +82,7 @@ function excute_sql($sql)
 }
 
 // 表结构和字段注释
-function tableDesc($table = '') {
+function tableDesc($table = '', $dbconfig) {
 
     $sql = "SELECT A .attnum,
 	        (
@@ -102,7 +94,7 @@ function tableDesc($table = '') {
             AND A .attnum > 0 AND NOT A .attisdropped
             ORDER BY A .attnum;";
 
-    return excute_sql($sql);
+    return excute_sql($sql, $dbconfig);
 }
 
 /**
@@ -111,10 +103,10 @@ function tableDesc($table = '') {
  *
  * @return string
  */
-function printMd($table, $type = 1) {
+function printMd($table, $type = 1, $dbconfig) {
     if (empty($table)) {return '';}
 
-    $fileds = tableDesc($table);
+    $fileds = tableDesc($table, $dbconfig);
 
     if ($type == 1) {
         $html = "|参数名|必选|类型|说明|";
@@ -152,4 +144,4 @@ function convertUnderline($str, $search = 'nice')
     return str_replace($search, '', $str);
 }
 
-index();
+index($config, $dbconfig);

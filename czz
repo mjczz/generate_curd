@@ -3,11 +3,12 @@
 /**
  * @author czz
  */
+require './config.php';
 
-function index()
+function index($config)
 {
-    $table_name = 'nice_xz_car';
-    $dir_name = 'xz';
+    $table_name = $config['table_name'];
+    $dir_name = $config['dir_name'];
     $TableName = convertUnderline($table_name);
 
     // 生成model文件
@@ -58,4 +59,4 @@ function convertUnderline($str, $search = 'nice')
     return str_replace($search, '', $str);
 }
 
-index();
+index($config);
